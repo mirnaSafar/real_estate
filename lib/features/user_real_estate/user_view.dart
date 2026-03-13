@@ -155,7 +155,7 @@ class UserView extends StatelessWidget {
 
                   return Card(
                     elevation: 8,
-                    shadowColor: Colors.black.withOpacity(0.1),
+                    shadowColor: Colors.black.withValues(alpha: 0.1),
                     margin: const EdgeInsets.symmetric(
                       vertical: 12,
                       horizontal: 4,
@@ -192,7 +192,7 @@ class UserView extends StatelessWidget {
                                         vertical: 6,
                                       ),
                                       decoration: BoxDecoration(
-                                        color: Colors.black.withOpacity(0.6),
+                                        color: Colors.black.withValues(alpha: 0.6),
                                         borderRadius: BorderRadius.circular(12),
                                       ),
                                       child: Text(
@@ -242,7 +242,7 @@ class UserView extends StatelessWidget {
                                     Container(
                                       padding: const EdgeInsets.all(4),
                                       decoration: BoxDecoration(
-                                        color: Colors.amber.withOpacity(0.1),
+                                        color: Colors.amber.withValues(alpha: 0.1),
                                         borderRadius: BorderRadius.circular(8),
                                       ),
                                       child: const Icon(

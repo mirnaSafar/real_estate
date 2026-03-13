@@ -96,9 +96,7 @@ class _RealEstatesAddressesState extends State<RealEstatesAddresses> {
                                 ),
                                 child: ListTile(
                                   leading: CircleAvatar(
-                                    backgroundColor: Colors.amber.withOpacity(
-                                      0.1,
-                                    ),
+                                    backgroundColor: Colors.amber.withValues(alpha: 0.1),
                                     child: const Icon(
                                       Icons.location_on,
                                       color: Colors.amber,

@@ -120,7 +120,7 @@ class _EditAddRealEstateState extends State<EditAddRealEstate> {
                                     },
                                     child: Container(
                                       decoration: BoxDecoration(
-                                        color: Colors.white.withOpacity(0.9),
+                                        color: Colors.white.withValues(alpha: 0.9),
                                         shape: BoxShape.circle,
                                       ),
                                       child: const Icon(
@@ -170,7 +170,7 @@ class _EditAddRealEstateState extends State<EditAddRealEstate> {
                                     },
                                     child: Container(
                                       decoration: BoxDecoration(
-                                        color: Colors.white.withOpacity(0.9),
+                                        color: Colors.white.withValues(alpha: 0.9),
                                         shape: BoxShape.circle,
                                       ),
                                       child: const Icon(

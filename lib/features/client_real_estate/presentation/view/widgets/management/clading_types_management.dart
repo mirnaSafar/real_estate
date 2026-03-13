@@ -95,9 +95,7 @@ class _CladingTypesManagementState extends State<CladingTypesManagement> {
                                 ),
                                 child: ListTile(
                                   leading: CircleAvatar(
-                                    backgroundColor: Colors.amber.withOpacity(
-                                      0.1,
-                                    ),
+                                    backgroundColor: Colors.amber.withValues(alpha: 0.1),
                                     child: const Icon(
                                       Icons.format_paint,
                                       color: Colors.amber,
