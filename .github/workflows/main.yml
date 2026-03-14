@@ -54,8 +54,26 @@ jobs:
         if: github.ref == 'refs/heads/main'
         uses: w9jds/firebase-action@master
         with:
-          args: appdistribution:distribute build/app/outputs/flutter-apk/app-release.apk --app "${{ secrets.FIREBASE_APP_ID }}" --groups "testers"
+          args: >-
+            appdistribution:distribute build/app/outputs/flutter-apk/app-release.apk
+            --app ${{ secrets.FIREBASE_APP_ID }}
+            --groups "testers"
         env:
           FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
+
+      - name: Send APK to Telegram
+        if: github.ref == 'refs/heads/main'
+        uses: appleboy/telegram-action@master
+        with:
+          to: ${{ secrets.TELEGRAM_CHAT_ID }}
+          token: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          message: |
+            🚀 New Android Build available!
+            
+            Branch: `${{ github.ref_name }}`
+            Commit: `${{ github.event.head_commit.message }}`
+            
+            You can download it from Firebase or use the file below.
+          document: build/app/outputs/flutter-apk/app-release.apk
 
    
