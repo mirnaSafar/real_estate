@@ -89,7 +89,7 @@ class ClientRealEstateTypesController extends GetxController {
           // 'owner_id': user.id,
           "name": titleController.text,
         }).select();
-        fetchRealEstatesTypes();
+        await fetchRealEstatesTypes();
         isAddLoading.value = false;
         Get.back();
       } else {
@@ -139,7 +139,7 @@ class ClientRealEstateTypesController extends GetxController {
           .update({'name': title})
           .eq('id', id)
           .select();
-      fetchRealEstatesTypes();
+      await fetchRealEstatesTypes();
       isUpdateLoading[int.parse(id)] = false;
 
       Get.back();

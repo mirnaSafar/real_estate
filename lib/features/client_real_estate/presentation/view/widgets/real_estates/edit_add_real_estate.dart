@@ -120,7 +120,9 @@ class _EditAddRealEstateState extends State<EditAddRealEstate> {
                                     },
                                     child: Container(
                                       decoration: BoxDecoration(
-                                        color: Colors.white.withValues(alpha: 0.9),
+                                        color: Colors.white.withValues(
+                                          alpha: 0.9,
+                                        ),
                                         shape: BoxShape.circle,
                                       ),
                                       child: const Icon(
@@ -170,7 +172,9 @@ class _EditAddRealEstateState extends State<EditAddRealEstate> {
                                     },
                                     child: Container(
                                       decoration: BoxDecoration(
-                                        color: Colors.white.withValues(alpha: 0.9),
+                                        color: Colors.white.withValues(
+                                          alpha: 0.9,
+                                        ),
                                         shape: BoxShape.circle,
                                       ),
                                       child: const Icon(
@@ -217,6 +221,9 @@ class _EditAddRealEstateState extends State<EditAddRealEstate> {
                         hint: const Text('العرض'),
                         items: [
                           ...clientOfferTypesController.properties
+                              .where((e) {
+                                return e["id"] != 0;
+                              })
                               .map<DropdownMenuItem<String>>((element) {
                                 return DropdownMenuItem<String>(
                                   value: element['id'].toString(),

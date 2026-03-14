@@ -141,7 +141,7 @@ class ClientRealEstateCladingTypesController extends GetxController {
           .update({'name': title})
           .eq('id', id)
           .select();
-      fetchCladingTypes();
+      await fetchCladingTypes();
       isUpdateLoading[int.parse(id)] = false;
 
       Get.back();

@@ -26,7 +26,7 @@ class ClientRealEstateApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return GetMaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'سسلاميس العقارية',
+      title: 'Admin Panel',
       theme: ThemeData(primarySwatch: Colors.amber),
       home: SplashScreen(),
       locale: Locale("ar"),

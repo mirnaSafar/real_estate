@@ -130,6 +130,7 @@ class ClientOfferTypesController extends GetxController {
           .update({'name': title})
           .eq('id', id)
           .select();
+      await fetchOfferTypes();
       isUpdateLoading[int.parse(id)] = false;
 
       Get.back();

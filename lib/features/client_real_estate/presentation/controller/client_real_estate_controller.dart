@@ -16,43 +16,54 @@ class ClientRealEstateController extends GetxController {
 
   @override
   void onInit() {
-    checkSession();
-    initRealEstate();
-    initFields();
-    fetchRealEstates();
+    try {
+      checkSession();
+      initRealEstate();
+      initFields();
+      fetchRealEstates();
 
-    supabase
-        .from('real_estates')
-        .stream(primaryKey: ['id'])
-        .order('created_at', ascending: false)
-        .listen((data) {
-          properties.value = data;
-        });
+      supabase
+          .from('real_estates')
+          .stream(primaryKey: ['id'])
+          .order('created_at', ascending: false)
+          .listen((data) {
+            properties.value = data;
+          });
+    } catch (e) {
+      debugPrint("Supabase not initialized: $e");
+    }
     super.onInit();
   }
 
   void checkSession() {
-    final session = Supabase.instance.client.auth.currentSession;
-    if (session != null) {
-      isAdmin.value = true;
+    try {
+      final session = Supabase.instance.client.auth.currentSession;
+      if (session != null) {
+        isAdmin.value = true;
+      }
+    } catch (e) {
+      debugPrint("Could not check session: $e");
     }
   }
 
   Future<void> fetchRealEstates() async {
-    isFetchLoading.value = true;
-    final data = await supabase
-        .from('real_estates')
-        .select()
-        .order('created_at', ascending: false);
-    properties.value = data;
-    isFetchLoading.value = false;
-    properties.map((element) {
-      isUpdateLoading.putIfAbsent(element["id"], () => false);
-      isDeleteLoading.putIfAbsent(element["id"], () => false);
-    });
-    // .fillRange(0, properties.length - 1, false);
-    // isDeleteLoading.fillRange(0, properties.length - 1, false);
-    update();
+    try {
+      isFetchLoading.value = true;
+      final data = await supabase
+          .from('real_estates')
+          .select()
+          .order('created_at', ascending: false);
+      properties.value = data;
+      isFetchLoading.value = false;
+      properties.map((element) {
+        isUpdateLoading.putIfAbsent(element["id"], () => false);
+        isDeleteLoading.putIfAbsent(element["id"], () => false);
+      });
+      update();
+    } catch (e) {
+      debugPrint("Error fetching real estates: $e");
+      isFetchLoading.value = false;
+    }
   }
 
   // Removed redundant fetchRealEstatesTypes that was overwriting properties

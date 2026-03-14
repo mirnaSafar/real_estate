@@ -142,6 +142,7 @@ class ClientRealEstateAddressesController extends GetxController {
           .update({'name': title})
           .eq('id', id)
           .select();
+      await fetchRealEstateAdresses();
       isUpdateLoading[int.parse(id)] = false;
 
       Get.back();
@@ -171,7 +172,7 @@ class ClientRealEstateAddressesController extends GetxController {
   void initFields() {
     isAddLoading.value = false;
     isInlineAddLoading.value = false;
-
+    addressNameController.text = '';
     isDeleteLoading.map((key, value) => MapEntry(key, false));
     isUpdateLoading.map((key, value) => MapEntry(key, false));
     isFetchLoading.value = false;
