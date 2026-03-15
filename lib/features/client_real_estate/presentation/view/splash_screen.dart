@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:real_estate/features/client_real_estate/presentation/controller/client_real_estate_controller.dart';
-import 'package:real_estate/features/client_real_estate/presentation/view/home_page.dart';
 import 'package:real_estate/features/client_real_estate/presentation/view/login_screen.dart';
 
 class SplashScreen extends StatefulWidget {
