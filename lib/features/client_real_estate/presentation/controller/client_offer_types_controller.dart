@@ -22,14 +22,16 @@ class ClientOfferTypesController extends GetxController {
     initOfferTypes();
     initFields();
     fetchOfferTypes();
-    supabase.from('real_estates_offer_types').stream(primaryKey: ['id']).listen(
-      (data) {
-        properties.value = [
-          {'name': 'الكل', 'id': 0},
-          ...data,
-        ];
-      },
-    );
+    supabase
+        .from('real_estates_offer_types')
+        .stream(primaryKey: ['id'])
+        .order('created_at', ascending: false)
+        .listen((data) {
+          properties.value = [
+            {'name': 'الكل', 'id': 0},
+            ...data,
+          ];
+        });
     super.onInit();
   }
 
@@ -113,12 +115,23 @@ class ClientOfferTypesController extends GetxController {
     }
   }
 
-  Future<void> createOfferTypeInline() async {
-    if (offerNameController.text.isEmpty) return;
+  Future<String?> createOfferTypeInline() async {
+    if (offerNameController.text.isEmpty) return null;
     isInlineAddLoading.value = true;
-    createOfferType();
-    offerNameController.clear();
-    isInlineAddLoading.value = false;
+    try {
+      final List<Map<String, dynamic>> data = await supabase
+          .from('real_estates_offer_types')
+          .insert({"name": offerNameController.text})
+          .select();
+      await fetchOfferTypes();
+      offerNameController.clear();
+      isInlineAddLoading.value = false;
+      return data.first['id'].toString();
+    } catch (e) {
+      debugPrint('Inline add error: $e');
+      isInlineAddLoading.value = false;
+      return null;
+    }
   }
 
   Future<void> updateofferType(String id, {required String title}) async {
@@ -160,7 +173,7 @@ class ClientOfferTypesController extends GetxController {
   void initFields() {
     isAddLoading.value = false;
     isInlineAddLoading.value = false;
-
+    offerNameController.text = '';
     isDeleteLoading.map((key, value) => MapEntry(key, false));
     isUpdateLoading.map((key, value) => MapEntry(key, false));
     isFetchLoading.value = false;

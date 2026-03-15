@@ -451,6 +451,11 @@ class ClientRealEstateController extends GetxController {
     areaController.dispose();
     floorController.dispose();
     selectedMedia.clear();
+    realEstateMedia.clear();
+    typeController.value = null;
+    cladingController.value = null;
+    offerController.value = null;
+    addressTagController.value = null;
     initFields();
     super.onClose();
   }
@@ -461,5 +466,18 @@ class ClientRealEstateController extends GetxController {
     isUpdateLoading.map((key, value) => MapEntry(key, false));
     isFetchLoading.value = false;
     selectedMedia.clear();
+    realEstateMedia.clear();
+    typeController.value = null;
+    cladingController.value = null;
+    offerController.value = null;
+    addressTagController.value = null;
+    titleController.clear();
+    priceController.clear();
+    locationController.clear();
+    roomsController.clear();
+    descController.clear();
+    floorController.clear();
+    propertyController.clear();
+    areaController.clear();
   }
 }

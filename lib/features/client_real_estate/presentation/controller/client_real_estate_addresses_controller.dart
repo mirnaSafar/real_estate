@@ -22,14 +22,16 @@ class ClientRealEstateAddressesController extends GetxController {
     initRealEstateAdresses();
     initFields();
     fetchRealEstateAdresses();
-    supabase.from('real_estates_addresses').stream(primaryKey: ['id']).listen((
-      data,
-    ) {
-      properties.value = [
-        {'name': 'الكل', 'id': 0},
-        ...data,
-      ];
-    });
+    supabase
+        .from('real_estates_addresses')
+        .stream(primaryKey: ['id'])
+        .order('created_at', ascending: false)
+        .listen((data) {
+          properties.value = [
+            {'name': 'الكل', 'id': 0},
+            ...data,
+          ];
+        });
     super.onInit();
   }
 
@@ -113,20 +115,23 @@ class ClientRealEstateAddressesController extends GetxController {
     }
   }
 
-  Future<void> createRealEstateAddressInline() async {
-    if (addressNameController.text.isEmpty) return;
+  Future<String?> createRealEstateAddressInline() async {
+    if (addressNameController.text.isEmpty) return null;
     isInlineAddLoading.value = true;
     try {
-      await supabase.from('real_estates_addresses').insert({
-        "name": addressNameController.text,
-      }).select();
+      final List<Map<String, dynamic>> data = await supabase
+          .from('real_estates_addresses')
+          .insert({"name": addressNameController.text})
+          .select();
       await fetchRealEstateAdresses();
       addressNameController.clear();
       isInlineAddLoading.value = false;
+      return data.first['id'].toString();
     } catch (e) {
       debugPrint('Inline add error: $e');
       isInlineAddLoading.value = false;
       Get.snackbar("خطأ", "فشل إضافة العنوان");
+      return null;
     }
   }
 

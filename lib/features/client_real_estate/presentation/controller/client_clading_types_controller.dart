@@ -115,20 +115,25 @@ class ClientRealEstateCladingTypesController extends GetxController {
     }
   }
 
-  Future<void> createCladingTypeInline() async {
-    if (inlineAddController.text.isEmpty) return;
+  Future<String?> createCladingTypeInline() async {
+    if (inlineAddController.text.isEmpty) return null;
     try {
       isInlineAddLoading.value = true;
-      await supabase.from('real_estate_clading_types').insert({
-        "name": inlineAddController.text,
-      }).select();
+      final List<Map<String, dynamic>> data = await supabase
+          .from('real_estate_clading_types')
+          .insert({
+            "name": inlineAddController.text,
+          })
+          .select();
       await fetchCladingTypes();
       inlineAddController.clear();
       isInlineAddLoading.value = false;
+      return data.first['id'].toString();
     } catch (e) {
       debugPrint('Inline add error: $e');
       isInlineAddLoading.value = false;
       Get.snackbar("خطأ", "فشل إضافة الإكساء");
+      return null;
     }
   }
 

@@ -18,10 +18,22 @@ class EditAddRealEstate extends StatefulWidget {
 }
 
 class _EditAddRealEstateState extends State<EditAddRealEstate> {
-  ClientRealEstateController controller = Get.put(ClientRealEstateController());
+  ClientRealEstateController controller = Get.find();
+
+  final clientOfferTypesController = Get.find<ClientOfferTypesController>();
+  ClientRealEstateAddressesController clientRealEstateAddressesController =
+      Get.find();
+  final typesController = Get.find<ClientRealEstateTypesController>();
+  final cladingTypesController =
+      Get.find<ClientRealEstateCladingTypesController>();
+
   @override
   void initState() {
     controller.initRealEstate(widget.realestate);
+    cladingTypesController.initFields();
+    typesController.initFields();
+    clientOfferTypesController.initFields();
+    clientRealEstateAddressesController.initFields();
     super.initState();
   }
 
@@ -213,12 +225,10 @@ class _EditAddRealEstateState extends State<EditAddRealEstate> {
                       child: const Text('العرض'),
                     ),
                     Obx(() {
-                      final clientOfferTypesController =
-                          Get.find<ClientOfferTypesController>();
                       return DropdownButton<String>(
                         isExpanded: true,
                         value: controller.offerController.value,
-                        hint: const Text('العرض'),
+                        hint: Text("اختر من القائمة"),
                         items: [
                           ...clientOfferTypesController.properties
                               .where((e) {
@@ -257,9 +267,17 @@ class _EditAddRealEstateState extends State<EditAddRealEstate> {
                                       )
                                     : IconButton(
                                         icon: const Icon(Icons.add),
-                                        onPressed: () =>
-                                            clientOfferTypesController
-                                                .createOfferTypeInline(),
+                                        onPressed: () async {
+                                          final newId =
+                                              await clientOfferTypesController
+                                                  .createOfferTypeInline();
+                                          if (newId != null &&
+                                              context.mounted) {
+                                            Navigator.pop(context);
+                                            controller.offerController.value =
+                                                newId;
+                                          }
+                                        },
                                       ),
                               ],
                             ),
@@ -284,43 +302,41 @@ class _EditAddRealEstateState extends State<EditAddRealEstate> {
                   vertical: 4,
                 ),
 
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // if (controller.typeController.isNotEmpty)
-                    // Padding(
-                    //   padding: const EdgeInsets.only(bottom: 8.0, top: 4.0),
-                    //   child: Wrap(
-                    //     spacing: 8,
-                    //     runSpacing: 4,
-                    //     children: controller.typeController.map((id) {
-                    //       final type = typesController.properties
-                    //           .firstWhere(
-                    //             (element) => element['id'].toString() == id,
-                    //             orElse: () => {'name': ''},
-                    //           );
-                    //       return Chip(
-                    //         label: Text(
-                    //           type['name'],
-                    //           style: const TextStyle(fontSize: 12),
-                    //         ),
-                    //         onDeleted: () =>
-                    //             controller.typeController.remove(id),
-                    //         deleteIcon: const Icon(Icons.close, size: 16),
-                    //         materialTapTargetSize:
-                    //             MaterialTapTargetSize.shrinkWrap,
-                    //       );
-                    //     }).toList(),
-                    //   ),
-                    // ),
-                    Align(
-                      alignment: AlignmentDirectional.topStart,
-                      child: const Text('نوع العقار'),
-                    ),
-                    Obx(() {
-                      final typesController =
-                          Get.find<ClientRealEstateTypesController>();
-                      return DropdownButtonHideUnderline(
+                child: Obx(() {
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // if (controller.typeController.isNotEmpty)
+                      // Padding(
+                      //   padding: const EdgeInsets.only(bottom: 8.0, top: 4.0),
+                      //   child: Wrap(
+                      //     spacing: 8,
+                      //     runSpacing: 4,
+                      //     children: controller.typeController.map((id) {
+                      //       final type = typesController.properties
+                      //           .firstWhere(
+                      //             (element) => element['id'].toString() == id,
+                      //             orElse: () => {'name': ''},
+                      //           );
+                      //       return Chip(
+                      //         label: Text(
+                      //           type['name'],
+                      //           style: const TextStyle(fontSize: 12),
+                      //         ),
+                      //         onDeleted: () =>
+                      //             controller.typeController.remove(id),
+                      //         deleteIcon: const Icon(Icons.close, size: 16),
+                      //         materialTapTargetSize:
+                      //             MaterialTapTargetSize.shrinkWrap,
+                      //       );
+                      //     }).toList(),
+                      //   ),
+                      // ),
+                      Align(
+                        alignment: AlignmentDirectional.topStart,
+                        child: const Text('نوع العقار'),
+                      ),
+                      DropdownButtonHideUnderline(
                         child: DropdownButton<String>(
                           isExpanded: true,
                           value:
@@ -331,7 +347,8 @@ class _EditAddRealEstateState extends State<EditAddRealEstate> {
                               ))
                               ? controller.typeController.value
                               : null,
-                          hint: const Text("نوع العقار"),
+                          hint: Text("اختر من القائمة"),
+
                           items: [
                             ...typesController.properties
                                 .where((element) => element['id'] != 0)
@@ -366,11 +383,15 @@ class _EditAddRealEstateState extends State<EditAddRealEstate> {
                                         )
                                       : IconButton(
                                           icon: const Icon(Icons.add),
-                                          onPressed: () {
-                                            typesController
+                                          onPressed: () async {
+                                            final newId = await typesController
                                                 .createRealEstateTypeInline();
-                                            typesController.properties
-                                                .refresh();
+                                            if (newId != null &&
+                                                context.mounted) {
+                                              Navigator.pop(context);
+                                              controller.typeController.value =
+                                                  newId;
+                                            }
                                           },
                                         ),
                                 ],
@@ -381,10 +402,10 @@ class _EditAddRealEstateState extends State<EditAddRealEstate> {
                             controller.typeController.value = value;
                           },
                         ),
-                      );
-                    }),
-                  ],
-                ),
+                      ),
+                    ],
+                  );
+                }),
               ),
 
               const SizedBox(height: 16),
@@ -398,8 +419,6 @@ class _EditAddRealEstateState extends State<EditAddRealEstate> {
                   vertical: 4,
                 ),
                 child: Obx(() {
-                  final clientRealEstateAddressesController =
-                      Get.find<ClientRealEstateAddressesController>();
                   return Column(
                     children: [
                       Align(
@@ -409,7 +428,8 @@ class _EditAddRealEstateState extends State<EditAddRealEstate> {
                       DropdownButton<String>(
                         isExpanded: true,
                         value: controller.addressTagController.value,
-                        hint: const Text('عنوان العقار'),
+                        hint: Text("اختر من القائمة"),
+
                         items: [
                           ...clientRealEstateAddressesController.properties
                               .skipWhile((p) => p["id"] == 0)
@@ -448,12 +468,18 @@ class _EditAddRealEstateState extends State<EditAddRealEstate> {
                                         )
                                       : IconButton(
                                           icon: const Icon(Icons.add),
-                                          onPressed: () {
-                                            clientRealEstateAddressesController
-                                                .createRealEstateAddressInline();
-                                            clientRealEstateAddressesController
-                                                .properties
-                                                .refresh();
+                                          onPressed: () async {
+                                            final newId =
+                                                await clientRealEstateAddressesController
+                                                    .createRealEstateAddressInline();
+                                            if (newId != null &&
+                                                context.mounted) {
+                                              Navigator.pop(context);
+                                              controller
+                                                      .addressTagController
+                                                      .value =
+                                                  newId;
+                                            }
                                           },
                                         ),
                                 ],
@@ -539,7 +565,7 @@ class _EditAddRealEstateState extends State<EditAddRealEstate> {
                       DropdownButtonHideUnderline(
                         child: DropdownButton<String>(
                           isExpanded: true,
-                          hint: Text("الإكساء"),
+                          hint: Text("اختر من القائمة"),
                           value:
                               (cladingTypesController.properties.any(
                                 (p) =>
@@ -585,9 +611,19 @@ class _EditAddRealEstateState extends State<EditAddRealEstate> {
                                           )
                                         : IconButton(
                                             icon: const Icon(Icons.add),
-                                            onPressed: () =>
-                                                cladingTypesController
-                                                    .createCladingTypeInline(),
+                                            onPressed: () async {
+                                              final newId =
+                                                  await cladingTypesController
+                                                      .createCladingTypeInline();
+                                              if (newId != null &&
+                                                  context.mounted) {
+                                                Navigator.pop(context);
+                                                controller
+                                                        .cladingController
+                                                        .value =
+                                                    newId;
+                                              }
+                                            },
                                           ),
                                   ],
                                 );
