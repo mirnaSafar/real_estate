@@ -56,5 +56,18 @@
 	<true/>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
+	<key>CFBundleURLTypes</key>
+
+  <!--deepLink-->
+	<array>
+		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+       <string>realestate</string>
+    </array>
+  </dict>
+</array>
 </dict>
 </plist>
