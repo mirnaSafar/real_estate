@@ -51,37 +51,29 @@ class RealEstateDetailsPage extends StatelessWidget {
         elevation: 0,
         iconTheme: const IconThemeData(color: Colors.black87),
         actions: [
-          // Share button
-          IconButton(
-            icon: const Icon(Icons.share_outlined, color: Colors.black87),
-            tooltip: 'مشاركة العقار',
-            onPressed: () {
-              final id = property['id']?.toString() ?? '';
-              final title = property['title'] ?? 'عقار في سلاميس العقارية';
-              final deepLink = 'realestate://property?id=$id';
-              SharePlus.instance.share(
-                ShareParams(
-                  text:
-                      '🏠 $title\n\nاضغط على الرابط لعرض التفاصيل:\n$deepLink',
-                  subject: title,
-                ),
-              );
-            },
-          ),
           if (formattedDate.isNotEmpty)
             Center(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 8),
+              child: Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 6,
+                ),
+                decoration: BoxDecoration(
+                  color: Colors.grey[100],
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(color: Colors.grey[300]!, width: 0.5),
+                ),
                 child: Text(
                   formattedDate,
-                  style: const TextStyle(
-                    color: Colors.black54,
-                    fontSize: 12,
-                    fontWeight: FontWeight.bold,
+                  style: TextStyle(
+                    color: Colors.grey[700],
+                    fontSize: 11,
+                    fontWeight: FontWeight.w600,
                   ),
                 ),
               ),
             ),
+          const SizedBox(width: 16),
         ],
       ),
       body: SingleChildScrollView(
@@ -115,6 +107,31 @@ class RealEstateDetailsPage extends StatelessWidget {
                           ),
                         ),
                       ),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 8),
+                        child: IconButton(
+                          icon: const Icon(
+                            Icons.share_outlined,
+                            color: Colors.amber,
+                            size: 22,
+                          ),
+                          tooltip: 'مشاركة العقار',
+                          onPressed: () {
+                            final id = property['id']?.toString() ?? '';
+                            final title =
+                                property['title'] ?? 'عقار في سلاميس العقارية';
+                            final deepLink = 'realestate://property?id=$id';
+                            SharePlus.instance.share(
+                              ShareParams(
+                                text:
+                                    '🏠 $title\n\nاضغط على الرابط لعرض التفاصيل:\n$deepLink',
+                                subject: title,
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+                      const SizedBox(width: 8),
                       if (isAppAdmin)
                         IconButton(
                           icon: const Icon(Icons.edit, color: Colors.amber),
@@ -239,51 +256,7 @@ class RealEstateDetailsPage extends StatelessWidget {
                     style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                   ),
                   onPressed: () async {
-                    final String title = property['title'] ?? '';
-                    final String id = property['id']?.toString() ?? '';
-                    final String area = property['area'] ?? '-';
-                    final String location = property['location'] ?? '';
-
-                    final String offerType =
-                        Get.find<ClientOfferTypesController>().getOfferTypeName(
-                          property['offer_type'],
-                        );
-                    final String propertyType =
-                        Get.find<ClientRealEstateTypesController>()
-                            .getRealEstateTypeName(property['type']);
-                    final String addressTag =
-                        Get.find<ClientRealEstateAddressesController>()
-                            .getAddressOfAddressTag(property['address_tag']);
-
-                    final String priceText = !property['is_price_hidden']
-                        ? '${property['price']} ل.س'
-                        : 'يتم الاستفسار عنه';
-
-                    final String deepLink = 'realestate://property?id=$id';
-
-                    final String message =
-                        '🏠 مرحباً، أود الاستفسار عن العقار التالي:\n\n'
-                        '📍 *العقار:* $title\n'
-                        '🏢 *النوع:* $propertyType - $offerType\n'
-                        '🗺️ *الموقع:* $addressTag - $location\n'
-                        '📐 *المساحة:* $area\n'
-                        '💰 *السعر:* $priceText\n\n'
-                        '🔗 *رابط العقار:*\n$deepLink';
-
-                    final text = Uri.encodeComponent(message);
-                    final url = Uri.parse(
-                      'whatsapp://send?phone=963966739593&text=$text',
-                    );
-                    if (await canLaunchUrl(url)) {
-                      await launchUrl(url);
-                    } else {
-                      final webUrl = Uri.parse(
-                        'https://wa.me/963966739593?text=$text',
-                      );
-                      if (await canLaunchUrl(webUrl)) {
-                        await launchUrl(webUrl);
-                      }
-                    }
+                    await _sendToWhatsApp();
                   },
                 ),
               ),
@@ -318,6 +291,46 @@ class RealEstateDetailsPage extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  Future<void> _sendToWhatsApp() async {
+    final String title = property['title'] ?? '';
+    final String id = property['id']?.toString() ?? '';
+    final String area = property['area'] ?? '-';
+    final String location = property['location'] ?? '';
+
+    final String offerType = Get.find<ClientOfferTypesController>()
+        .getOfferTypeName(property['offer_type']);
+    final String propertyType = Get.find<ClientRealEstateTypesController>()
+        .getRealEstateTypeName(property['type']);
+    final String addressTag = Get.find<ClientRealEstateAddressesController>()
+        .getAddressOfAddressTag(property['address_tag']);
+
+    final String priceText = !property['is_price_hidden']
+        ? '${property['price']} ل.س'
+        : 'يتم الاستفسار عنه';
+
+    final String deepLink = 'realestate://property?id=$id';
+
+    final String message =
+        '🏠 مرحباً، أود الاستفسار عن العقار التالي:\n\n'
+        '📍 *العقار:* $title\n'
+        '🏢 *النوع:* $propertyType - $offerType\n'
+        '🗺️ *الموقع:* $addressTag - $location\n'
+        '📐 *المساحة:* $area\n'
+        '💰 *السعر:* $priceText\n\n'
+        '🔗 *رابط العقار:*\n$deepLink';
+
+    final text = Uri.encodeComponent(message);
+    final url = Uri.parse('whatsapp://send?phone=963966739593&text=$text');
+    if (await canLaunchUrl(url)) {
+      await launchUrl(url);
+    } else {
+      final webUrl = Uri.parse('https://wa.me/963966739593?text=$text');
+      if (await canLaunchUrl(webUrl)) {
+        await launchUrl(webUrl);
+      }
+    }
   }
 
   Widget _buildInfoGrid(dynamic property) {
