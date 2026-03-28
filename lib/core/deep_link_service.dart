@@ -26,7 +26,10 @@ class DeepLinkService {
   }
 
   static void _handleLink(Uri uri) {
-    if (uri.host == 'property') {
+    // Handle both realestate://property and https://salamisrealestate.com/property
+    final isPropertyLink = (uri.host == 'property' || uri.host == 'salamisrealestate.com');
+    
+    if (isPropertyLink) {
       final id = uri.queryParameters['id'];
       if (id == null) return;
 

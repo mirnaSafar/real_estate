@@ -120,7 +120,8 @@ class RealEstateDetailsPage extends StatelessWidget {
                             final id = property['id']?.toString() ?? '';
                             final title =
                                 property['title'] ?? 'عقار في سلاميس العقارية';
-                            final deepLink = 'realestate://property?id=$id';
+                            final deepLink =
+                                'https://salamisrealestate.com/property?id=$id';
                             SharePlus.instance.share(
                               ShareParams(
                                 text:
@@ -310,7 +311,7 @@ class RealEstateDetailsPage extends StatelessWidget {
         ? '${property['price']} ل.س'
         : 'يتم الاستفسار عنه';
 
-    final String deepLink = 'realestate://property?id=$id';
+    final String deepLink = 'https://salamisrealestate.com/property?id=$id';
 
     final String message =
         '🏠 مرحباً، أود الاستفسار عن العقار التالي:\n\n'

@@ -30,12 +30,20 @@
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
             
-            <!--deepLink-->
+            <!--deepLink (Custom Scheme)-->
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
                 <data android:scheme="realestate" android:host="property" />
+            </intent-filter>
+
+            <!--deepLink (HTTPS / App Links)-->
+            <intent-filter android:autoVerify="true">
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="https" android:host="salamisrealestate.com" android:pathPrefix="/property" />
             </intent-filter>
         </activity>
         <!-- Don't delete the meta-data below.

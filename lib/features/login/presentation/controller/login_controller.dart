@@ -18,13 +18,9 @@ class LoginController extends GetxController {
   }
 
   void checkSession() {
-    try {
-      final session = Supabase.instance.client.auth.currentSession;
-      if (session != null) {
-        isAdmin.value = true;
-      }
-    } catch (e) {
-      debugPrint("Could not check session: $e");
+    final session = Supabase.instance.client.auth.currentSession;
+    if (session != null) {
+      isAdmin.value = true;
     }
   }
 

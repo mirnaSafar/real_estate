@@ -20,8 +20,11 @@ class _SplashScreenState extends State<SplashScreen> {
   void initState() {
     super.initState();
     Future.delayed(Duration(seconds: 3), () {
+      final session = supabase.auth.currentSession;
+      final bool shouldGoToMain = !isAppAdmin || session != null;
+      
       Get.offAll(
-        () => isAdmin ? LoginScreen() : MainPage(),
+        () => shouldGoToMain ? MainPage() : LoginScreen(),
       );
     });
   }
