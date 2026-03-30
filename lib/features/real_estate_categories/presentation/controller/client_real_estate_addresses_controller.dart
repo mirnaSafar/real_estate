@@ -2,6 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:real_estate/core/check_session_func.dart';
 import 'package:real_estate/core/utils.dart';
 import 'package:real_estate/features/real_estate/presentation/controller/client_real_estate_controller.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -17,11 +18,8 @@ class ClientRealEstateAddressesController extends GetxController {
   RxMap<int, bool> isDeleteLoading = <int, bool>{}.obs;
   RxMap<int, bool> isUpdateLoading = <int, bool>{}.obs;
   final ClientRealEstateController _realEstateController = Get.find();
-  String getAddressOfAddressTag(String addressTag) =>
-      properties.firstWhereOrNull(
-        (e) => e["id"].toString() == addressTag,
-      )?["name"] ??
-      "";
+  String? getAddressOfAddressTag(String addressTag) => properties
+      .firstWhereOrNull((e) => e["id"].toString() == addressTag)?["name"];
   @override
   void onInit() {
     initRealEstateAdresses();
@@ -40,8 +38,8 @@ class ClientRealEstateAddressesController extends GetxController {
     super.onInit();
   }
 
-  Future<void> fetchRealEstateAdresses() async {
-    isFetchLoading.value = true;
+  Future<void> fetchRealEstateAdresses({bool? showLoading = true}) async {
+    if (showLoading == true) isFetchLoading.value = true;
     final List<Map<String, dynamic>> data = await supabase
         .from('real_estates_addresses')
         .select()
@@ -51,7 +49,7 @@ class ClientRealEstateAddressesController extends GetxController {
       ...data,
     ];
     // properties.value.addAll(data);
-    isFetchLoading.value = false;
+    if (showLoading == true) isFetchLoading.value = false;
     properties.map((element) {
       isUpdateLoading.putIfAbsent(element["id"], () => false);
       isDeleteLoading.putIfAbsent(element["id"], () => false);
@@ -91,14 +89,16 @@ class ClientRealEstateAddressesController extends GetxController {
 
     try {
       if (formKey.currentState!.validate()) {
-        isAddLoading.value = true;
-        await supabase.from('real_estates_addresses').insert({
-          // 'owner_id': user.id,
-          "name": addressNameController.text,
-        }).select();
-        fetchRealEstateAdresses();
-        isAddLoading.value = false;
-        Get.back();
+        await checkSessionFunction(() async {
+          isAddLoading.value = true;
+          await supabase.from('real_estates_addresses').insert({
+            // 'owner_id': user.id,
+            "name": addressNameController.text,
+          }).select();
+          fetchRealEstateAdresses();
+          isAddLoading.value = false;
+          Get.back();
+        });
       } else {
         Get.showSnackbar(
           GetSnackBar(
@@ -122,22 +122,24 @@ class ClientRealEstateAddressesController extends GetxController {
 
   Future<String?> createRealEstateAddressInline() async {
     if (addressNameController.text.isEmpty) return null;
-    isInlineAddLoading.value = true;
-    try {
-      final List<Map<String, dynamic>> data = await supabase
-          .from('real_estates_addresses')
-          .insert({"name": addressNameController.text})
-          .select();
-      await fetchRealEstateAdresses();
-      addressNameController.clear();
-      isInlineAddLoading.value = false;
-      return data.first['id'].toString();
-    } catch (e) {
-      debugPrint('Inline add error: $e');
-      isInlineAddLoading.value = false;
-      Get.snackbar("خطأ", "فشل إضافة العنوان");
-      return null;
-    }
+    return await checkSessionFunction<String?>(() async {
+      isInlineAddLoading.value = true;
+      try {
+        final List<Map<String, dynamic>> data = await supabase
+            .from('real_estates_addresses')
+            .insert({"name": addressNameController.text})
+            .select();
+        await fetchRealEstateAdresses();
+        addressNameController.clear();
+        isInlineAddLoading.value = false;
+        return data.first['id'].toString();
+      } catch (e) {
+        debugPrint('Inline add error: $e');
+        isInlineAddLoading.value = false;
+        Get.snackbar("خطأ", "فشل إضافة العنوان");
+        return null;
+      }
+    });
   }
 
   Future<void> upateRealEstateAddress(
@@ -146,29 +148,37 @@ class ClientRealEstateAddressesController extends GetxController {
   }) async {
     final supabase = Supabase.instance.client;
     if (formKey.currentState!.validate()) {
-      isUpdateLoading[int.parse(id)] = true;
-      properties.value = await supabase
-          .from('real_estates_addresses')
-          .update({'name': title})
-          .eq('id', id)
-          .select();
-      await fetchRealEstateAdresses();
-      isUpdateLoading[int.parse(id)] = false;
+      await checkSessionFunction(() async {
+        isUpdateLoading[int.parse(id)] = true;
+        properties.value = await supabase
+            .from('real_estates_addresses')
+            .update({'name': title})
+            .eq('id', id)
+            .select();
+        await fetchRealEstateAdresses();
+        isUpdateLoading[int.parse(id)] = false;
 
-      Get.back();
+        Get.back();
+      });
     }
   }
 
   Future<void> deleteRealEstateAddress(String id) async {
     final supabase = Supabase.instance.client;
-    isDeleteLoading[int.parse(id)] = true;
-    await supabase
-        .from('real_estates_addresses')
-        .delete()
-        .eq('id', id)
-        .select();
-    fetchRealEstateAdresses();
-    isDeleteLoading[int.parse(id)] = false;
+    await checkSessionFunction(() async {
+      isDeleteLoading[int.parse(id)] = true;
+      try {
+        await supabase
+            .from('real_estates_addresses')
+            .delete()
+            .eq('id', id)
+            .select();
+        await fetchRealEstateAdresses(showLoading: false);
+        isDeleteLoading[int.parse(id)] = false;
+      } catch (e) {
+        isDeleteLoading[int.parse(id)] = false;
+      }
+    });
   }
 
   @override

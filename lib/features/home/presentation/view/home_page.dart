@@ -269,16 +269,22 @@ class HomePage extends StatelessWidget {
                                               crossAxisAlignment:
                                                   CrossAxisAlignment.start,
                                               children: [
-                                                if (property['address_tag'] !=
+                                                if (addressesController
+                                                            .getAddressOfAddressTag(
+                                                              property['address_tag'],
+                                                            ) !=
                                                         null &&
-                                                    property['address_tag']
-                                                        .toString()
-                                                        .isNotEmpty)
-                                                  Text(
                                                     addressesController
                                                         .getAddressOfAddressTag(
                                                           property['address_tag'],
-                                                        ),
+                                                        )!
+                                                        .isNotEmpty)
+                                                  Text(
+                                                    addressesController
+                                                            .getAddressOfAddressTag(
+                                                              property['address_tag'],
+                                                            ) ??
+                                                        '',
                                                     style: TextStyle(
                                                       fontSize: 15,
                                                       color: Colors.grey[600],
@@ -305,36 +311,47 @@ class HomePage extends StatelessWidget {
                                         ],
                                       ),
                                     ),
-                                    Flexible(
-                                      flex: 1,
-                                      child: Container(
-                                        padding: const EdgeInsets.symmetric(
-                                          horizontal: 14,
-                                          vertical: 8,
-                                        ),
-                                        decoration: BoxDecoration(
-                                          color: Colors.amber.withValues(
-                                            alpha: 0.1,
+                                    if (offerTypesController.getOfferTypeName(
+                                              property['offer_type'],
+                                            ) !=
+                                            null &&
+                                        offerTypesController
+                                            .getOfferTypeName(
+                                              property['offer_type'],
+                                            )!
+                                            .isNotEmpty)
+                                      Flexible(
+                                        flex: 1,
+                                        child: Container(
+                                          padding: const EdgeInsets.symmetric(
+                                            horizontal: 14,
+                                            vertical: 8,
                                           ),
-                                          borderRadius: BorderRadius.circular(
-                                            16,
+                                          decoration: BoxDecoration(
+                                            color: Colors.amber.withValues(
+                                              alpha: 0.1,
+                                            ),
+                                            borderRadius: BorderRadius.circular(
+                                              16,
+                                            ),
+                                            border: Border.all(
+                                              color: Colors.amber,
+                                            ),
                                           ),
-                                          border: Border.all(
-                                            color: Colors.amber,
-                                          ),
-                                        ),
-                                        child: Text(
-                                          offerTypesController.getOfferTypeName(
-                                            property['offer_type'],
-                                          ),
-                                          style: const TextStyle(
-                                            fontWeight: FontWeight.bold,
-                                            fontSize: 14,
-                                            color: Colors.black87,
+                                          child: Text(
+                                            offerTypesController
+                                                    .getOfferTypeName(
+                                                      property['offer_type'],
+                                                    ) ??
+                                                '',
+                                            style: const TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 14,
+                                              color: Colors.black87,
+                                            ),
                                           ),
                                         ),
                                       ),
-                                    ),
                                   ],
                                 ),
                                 const SizedBox(height: 20),
@@ -363,7 +380,7 @@ class HomePage extends StatelessWidget {
                                                 ),
                                               )
                                             : Text(
-                                                '${property['price']} ل.س',
+                                                '${property['price']} ${property['currency']}',
                                                 style: const TextStyle(
                                                   fontSize: 22,
                                                   color: Colors.blueAccent,
@@ -487,7 +504,7 @@ class HomePage extends StatelessWidget {
                                         ),
                                         onPressed: () async {
                                           final url = Uri.parse(
-                                            'tel:963966739593',
+                                            'tel:0966739593',
                                           );
                                           if (await canLaunchUrl(url)) {
                                             await launchUrl(url);

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:real_estate/core/check_session_func.dart';
 import 'package:real_estate/core/utils.dart';
 import 'package:real_estate/features/login/presentation/controller/login_controller.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -45,15 +46,15 @@ class ClientRealEstateController extends GetxController {
     }
   }
 
-  Future<void> fetchRealEstates() async {
+  Future<void> fetchRealEstates({bool? showLoading = true}) async {
     try {
-      isFetchLoading.value = true;
+      if (showLoading == true) isFetchLoading.value = true;
       final data = await supabase
           .from('real_estates')
           .select()
           .order('created_at', ascending: false);
       properties.value = data;
-      isFetchLoading.value = false;
+      if (showLoading == true) isFetchLoading.value = false;
       properties.map((element) {
         isUpdateLoading.putIfAbsent(element["id"], () => false);
         isDeleteLoading.putIfAbsent(element["id"], () => false);
@@ -265,33 +266,35 @@ class ClientRealEstateController extends GetxController {
 
     try {
       if (formKey.currentState!.validate()) {
-        isAddLoading.value = true;
+        checkSessionFunction(() async {
+          isAddLoading.value = true;
 
-        // Upload new media and get public URLs
-        List<String> newUrls = await _uploadMedia();
+          // Upload new media and get public URLs
+          List<String> newUrls = await _uploadMedia();
 
-        await supabase.from('real_estates').insert({
-          "title": titleController.text,
-          "price": priceController.text,
-          "location": locationController.text,
-          "roomNum": int.parse(roomsController.text),
-          "description": descController.text,
-          "type": typeController.value,
-          "clading": cladingController.value,
-          "offer_type": offerController.value,
-          "address_tag": addressTagController.value,
-          "floor_number": floorController.text,
-          "property": propertyController.text,
-          "area": areaController.text,
-          "is_price_hidden": isPriceHidden.value,
-          "currency": currency.value,
-          "media": newUrls,
-        }).select();
+          await supabase.from('real_estates').insert({
+            "title": titleController.text,
+            "price": priceController.text,
+            "location": locationController.text,
+            "roomNum": roomsController.text,
+            "description": descController.text,
+            "type": typeController.value,
+            "clading": cladingController.value,
+            "offer_type": offerController.value,
+            "address_tag": addressTagController.value,
+            "floor_number": floorController.text,
+            "property": propertyController.text,
+            "area": areaController.text,
+            "is_price_hidden": isPriceHidden.value,
+            "currency": currency.value,
+            "media": newUrls,
+          }).select();
 
-        selectedMedia.clear(); // Clear selections after successful upload
-        fetchRealEstates();
-        isAddLoading.value = false;
-        Get.back();
+          selectedMedia.clear(); // Clear selections after successful upload
+          fetchRealEstates();
+          isAddLoading.value = false;
+          Get.back();
+        });
       } else {
         Get.showSnackbar(
           GetSnackBar(
@@ -333,44 +336,46 @@ class ClientRealEstateController extends GetxController {
     final supabase = Supabase.instance.client;
     try {
       if (formKey.currentState!.validate()) {
-        isUpdateLoading[int.parse(id)] = true;
+        checkSessionFunction(() async {
+          isUpdateLoading[int.parse(id)] = true;
 
-        // Keep existing URLs (realEstateMedia contains already uploaded URLs)
-        List<String> combinedMedia = realEstateMedia
-            .map((e) => e.path)
-            .toList();
+          // Keep existing URLs (realEstateMedia contains already uploaded URLs)
+          List<String> combinedMedia = realEstateMedia
+              .map((e) => e.path)
+              .toList();
 
-        // Upload newly selected media
-        List<String> newUrls = await _uploadMedia();
-        combinedMedia.addAll(newUrls);
+          // Upload newly selected media
+          List<String> newUrls = await _uploadMedia();
+          combinedMedia.addAll(newUrls);
 
-        properties.value = await supabase
-            .from('real_estates')
-            .update({
-              'title': title,
-              "roomNum": roomNum,
-              'description': description,
-              'price': price,
-              'location': location,
-              "type": type,
-              "clading": clading,
-              "offer_type": offerType,
-              "address_tag": addressTag,
-              "floor_number": floor,
-              "property": propertyType,
-              "area": area,
-              "is_price_hidden": isPriceHidden.value,
-              "currency": currency.value,
-              "media": combinedMedia,
-            })
-            .eq('id', int.parse(id))
-            .select();
+          properties.value = await supabase
+              .from('real_estates')
+              .update({
+                'title': title,
+                "roomNum": roomNum,
+                'description': description,
+                'price': price,
+                'location': location,
+                "type": type,
+                "clading": clading,
+                "offer_type": offerType,
+                "address_tag": addressTag,
+                "floor_number": floor,
+                "property": propertyType,
+                "area": area,
+                "is_price_hidden": isPriceHidden.value,
+                "currency": currency.value,
+                "media": combinedMedia,
+              })
+              .eq('id', int.parse(id))
+              .select();
 
-        selectedMedia.clear(); // Clear new selections after successful upload
-        fetchRealEstates();
-        isUpdateLoading[int.parse(id)] = false;
+          selectedMedia.clear(); // Clear new selections after successful upload
+          fetchRealEstates();
+          isUpdateLoading[int.parse(id)] = false;
 
-        Get.back();
+          Get.back();
+        });
       } else {
         Get.showSnackbar(
           GetSnackBar(
@@ -394,12 +399,18 @@ class ClientRealEstateController extends GetxController {
   }
 
   Future<void> deleteRealEstate(String id) async {
-    final supabase = Supabase.instance.client;
-    isDeleteLoading[int.parse(id)] = true;
-    await supabase.from('real_estates').delete().eq('id', id).select();
-    fetchRealEstates();
-    Get.back();
-    isDeleteLoading[int.parse(id)] = false;
+    checkSessionFunction(() async {
+      final supabase = Supabase.instance.client;
+      isDeleteLoading[int.parse(id)] = true;
+      try {
+        await supabase.from('real_estates').delete().eq('id', id).select();
+        await fetchRealEstates(showLoading: false);
+        Get.back();
+        isDeleteLoading[int.parse(id)] = false;
+      } catch (e) {
+        isDeleteLoading[int.parse(id)] = false;
+      }
+    });
   }
 
   @override

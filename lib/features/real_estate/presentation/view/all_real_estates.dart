@@ -149,7 +149,7 @@ class _AllRealEstatesState extends State<AllRealEstates> {
                                         fontSize: 18,
                                         fontWeight: FontWeight.bold,
                                       ),
-                                      maxLines: 1,
+                                      maxLines: 3,
                                       overflow: TextOverflow.ellipsis,
                                     ),
                                     const SizedBox(height: 8),
@@ -177,61 +177,79 @@ class _AllRealEstatesState extends State<AllRealEstates> {
                                         crossAxisAlignment:
                                             CrossAxisAlignment.center,
                                         children: [
-                                          Expanded(
-                                            child: Row(
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.center,
-                                              children: [
-                                                const Icon(
-                                                  Icons.location_on,
-                                                  size: 16,
-                                                  color: Colors.grey,
-                                                ),
-                                                const SizedBox(width: 4),
-                                                Expanded(
-                                                  child: Text(
-                                                    clientRealEstateAddressesController
-                                                        .getAddressOfAddressTag(
-                                                          property['address_tag'],
-                                                        ),
-                                                    style: const TextStyle(
-                                                      color: Colors.grey,
-                                                    ),
-                                                    maxLines: 1,
-                                                    overflow:
-                                                        TextOverflow.ellipsis,
+                                          if (property['address_tag'] != null &&
+                                              property['address_tag']
+                                                  .toString()
+                                                  .isNotEmpty)
+                                            Expanded(
+                                              child: Row(
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.center,
+                                                children: [
+                                                  const Icon(
+                                                    Icons.location_on,
+                                                    size: 16,
+                                                    color: Colors.grey,
                                                   ),
-                                                ),
-                                              ],
-                                            ),
-                                          ),
-                                          Container(
-                                            padding: const EdgeInsets.symmetric(
-                                              horizontal: 14,
-                                              vertical: 8,
-                                            ),
-                                            decoration: BoxDecoration(
-                                              color: Colors.amber.withValues(
-                                                alpha: 0.1,
+                                                  const SizedBox(width: 4),
+                                                  Expanded(
+                                                    child: Text(
+                                                      clientRealEstateAddressesController
+                                                              .getAddressOfAddressTag(
+                                                                property['address_tag'],
+                                                              ) ??
+                                                          '',
+                                                      style: const TextStyle(
+                                                        color: Colors.grey,
+                                                      ),
+                                                      maxLines: 3,
+                                                      overflow:
+                                                          TextOverflow.ellipsis,
+                                                    ),
+                                                  ),
+                                                ],
                                               ),
-                                              borderRadius:
-                                                  BorderRadius.circular(16),
-                                              border: Border.all(
-                                                color: Colors.amber,
-                                              ),
                                             ),
-                                            child: Text(
+                                          const SizedBox(width: 8),
+                                          if (clientOfferTypesController
+                                                      .getOfferTypeName(
+                                                        property['offer_type'],
+                                                      ) !=
+                                                  null &&
                                               clientOfferTypesController
                                                   .getOfferTypeName(
                                                     property['offer_type'],
+                                                  )!
+                                                  .isNotEmpty)
+                                            Container(
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                    horizontal: 14,
+                                                    vertical: 8,
                                                   ),
-                                              style: const TextStyle(
-                                                color: Colors.grey,
+                                              decoration: BoxDecoration(
+                                                color: Colors.amber.withValues(
+                                                  alpha: 0.1,
+                                                ),
+                                                borderRadius:
+                                                    BorderRadius.circular(16),
+                                                border: Border.all(
+                                                  color: Colors.amber,
+                                                ),
                                               ),
-                                              maxLines: 1,
-                                              overflow: TextOverflow.ellipsis,
+                                              child: Text(
+                                                clientOfferTypesController
+                                                        .getOfferTypeName(
+                                                          property['offer_type'],
+                                                        ) ??
+                                                    '',
+                                                style: const TextStyle(
+                                                  color: Colors.grey,
+                                                ),
+                                                maxLines: 3,
+                                                overflow: TextOverflow.ellipsis,
+                                              ),
                                             ),
-                                          ),
                                         ],
                                       ),
                                     ),
@@ -346,6 +364,7 @@ class _AllRealEstatesState extends State<AllRealEstates> {
                                                                 property['id']
                                                                     .toString(),
                                                               );
+                                                              Get.back();
                                                             },
                                                             child: const Text(
                                                               "حذف",

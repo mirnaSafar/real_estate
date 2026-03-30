@@ -50,6 +50,7 @@ flutter_launcher_icons:
 
 dev_dependencies:
   flutter_launcher_icons: ^0.13.1
+  # flutter_native_splash: ^2.4.4
   flutter_test:
     sdk: flutter
 
@@ -99,3 +100,11 @@ flutter:
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/to/font-from-package
+
+# flutter_native_splash:
+#   color: "#FFB300"
+#   image: "assets/logo.jpeg"
+#   android_12:
+#     image: "assets/logo.jpeg"
+#     color: "#FFB300"
+#   fullscreen: true

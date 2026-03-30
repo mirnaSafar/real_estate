@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:real_estate/core/deep_link_service.dart';
 import 'package:real_estate/core/utils.dart';
 import 'package:real_estate/features/login/presentation/view/login_screen.dart';
 import 'package:real_estate/features/main_page/presentation/view/main_page.dart';
@@ -20,12 +21,12 @@ class _SplashScreenState extends State<SplashScreen> {
   void initState() {
     super.initState();
     Future.delayed(Duration(seconds: 3), () {
+      if (DeepLinkService.isHandlingLink) return;
+
       final session = supabase.auth.currentSession;
       final bool shouldGoToMain = !isAppAdmin || session != null;
-      
-      Get.offAll(
-        () => shouldGoToMain ? MainPage() : LoginScreen(),
-      );
+
+      Get.offAll(() => shouldGoToMain ? MainPage() : LoginScreen());
     });
   }
 
@@ -97,7 +98,7 @@ class _SplashScreenState extends State<SplashScreen> {
               child: Column(
                 children: [
                   const Text(
-                    'سسلاميس العقارية',
+                    'سلاميس العقارية',
                     style: TextStyle(
                       fontSize: 32,
                       fontWeight: FontWeight.w900,

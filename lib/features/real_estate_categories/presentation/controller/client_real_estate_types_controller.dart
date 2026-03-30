@@ -2,6 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:real_estate/core/check_session_func.dart';
 import 'package:real_estate/core/utils.dart';
 import 'package:real_estate/features/real_estate/presentation/controller/client_real_estate_controller.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -35,15 +36,14 @@ class ClientRealEstateTypesController extends GetxController {
     super.onInit();
   }
 
-  String getRealEstateTypeName(String id) {
+  String? getRealEstateTypeName(String id) {
     return properties.firstWhereOrNull(
-          (element) => element['id'].toString() == id,
-        )?['name'] ??
-        '-';
+      (element) => element['id'].toString() == id,
+    )?['name'];
   }
 
-  Future<void> fetchRealEstatesTypes() async {
-    isFetchLoading.value = true;
+  Future<void> fetchRealEstatesTypes({bool? showLoading = true}) async {
+    if (showLoading == true) isFetchLoading.value = true;
     final List<Map<String, dynamic>> data = await supabase
         .from('real_estates_types')
         .select()
@@ -53,7 +53,7 @@ class ClientRealEstateTypesController extends GetxController {
       ...data,
     ];
     // properties.value.addAll(data);
-    isFetchLoading.value = false;
+    if (showLoading == true) isFetchLoading.value = false;
     properties.map((element) {
       isUpdateLoading.putIfAbsent(element["id"], () => false);
       isDeleteLoading.putIfAbsent(element["id"], () => false);
@@ -93,14 +93,16 @@ class ClientRealEstateTypesController extends GetxController {
 
     try {
       if (formKey.currentState!.validate()) {
-        isAddLoading.value = true;
-        await supabase.from('real_estates_types').insert({
-          // 'owner_id': user.id,
-          "name": titleController.text,
-        }).select();
-        await fetchRealEstatesTypes();
-        isAddLoading.value = false;
-        Get.back();
+        await checkSessionFunction(() async {
+          isAddLoading.value = true;
+          await supabase.from('real_estates_types').insert({
+            // 'owner_id': user.id,
+            "name": titleController.text,
+          }).select();
+          await fetchRealEstatesTypes();
+          isAddLoading.value = false;
+          Get.back();
+        });
       } else {
         Get.showSnackbar(
           GetSnackBar(
@@ -124,46 +126,60 @@ class ClientRealEstateTypesController extends GetxController {
 
   Future<String?> createRealEstateTypeInline() async {
     if (inlineAddController.text.isEmpty) return null;
-    isInlineAddLoading.value = true;
-    try {
-      final List<Map<String, dynamic>> data = await supabase
-          .from('real_estates_types')
-          .insert({"name": inlineAddController.text})
-          .select();
-      await fetchRealEstatesTypes();
-      inlineAddController.clear();
-      isInlineAddLoading.value = false;
-      return data.first['id'].toString();
-    } catch (e) {
-      debugPrint('Inline add error: $e');
-      isInlineAddLoading.value = false;
-      Get.snackbar("خطأ", "فشل إضافة العنوان");
-      return null;
-    }
+    return await checkSessionFunction<String?>(() async {
+      isInlineAddLoading.value = true;
+      try {
+        final List<Map<String, dynamic>> data = await supabase
+            .from('real_estates_types')
+            .insert({"name": inlineAddController.text})
+            .select();
+        await fetchRealEstatesTypes();
+        inlineAddController.clear();
+        isInlineAddLoading.value = false;
+        return data.first['id'].toString();
+      } catch (e) {
+        debugPrint('Inline add error: $e');
+        isInlineAddLoading.value = false;
+        Get.snackbar("خطأ", "فشل إضافة العنوان");
+        return null;
+      }
+    });
   }
 
   Future<void> updateRealEstateType(String id, {required String title}) async {
     final supabase = Supabase.instance.client;
     if (formKey.currentState!.validate()) {
-      isUpdateLoading[int.parse(id)] = true;
-      properties.value = await supabase
-          .from('real_estates_types')
-          .update({'name': title})
-          .eq('id', id)
-          .select();
-      await fetchRealEstatesTypes();
-      isUpdateLoading[int.parse(id)] = false;
+      await checkSessionFunction(() async {
+        isUpdateLoading[int.parse(id)] = true;
+        properties.value = await supabase
+            .from('real_estates_types')
+            .update({'name': title})
+            .eq('id', id)
+            .select();
+        await fetchRealEstatesTypes();
+        isUpdateLoading[int.parse(id)] = false;
 
-      Get.back();
+        Get.back();
+      });
     }
   }
 
   Future<void> deleteRealEstateType(String id) async {
-    final supabase = Supabase.instance.client;
-    isDeleteLoading[int.parse(id)] = true;
-    await supabase.from('real_estates_types').delete().eq('id', id).select();
-    fetchRealEstatesTypes();
-    isDeleteLoading[int.parse(id)] = false;
+    await checkSessionFunction(() async {
+      final supabase = Supabase.instance.client;
+      isDeleteLoading[int.parse(id)] = true;
+      try {
+        await supabase
+            .from('real_estates_types')
+            .delete()
+            .eq('id', id)
+            .select();
+        await fetchRealEstatesTypes(showLoading: false);
+        isDeleteLoading[int.parse(id)] = false;
+      } catch (e) {
+        isDeleteLoading[int.parse(id)] = false;
+      }
+    });
   }
 
   @override

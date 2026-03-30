@@ -227,7 +227,13 @@ class _EditAddRealEstateState extends State<EditAddRealEstate> {
                     Obx(() {
                       return DropdownButton<String>(
                         isExpanded: true,
-                        value: controller.offerController.value,
+                        value:
+                            clientOfferTypesController.properties.any((e) {
+                              return e["id"].toString() ==
+                                  controller.offerController.value;
+                            })
+                            ? controller.offerController.value
+                            : null,
                         hint: Text("اختر من القائمة"),
                         items: [
                           ...clientOfferTypesController.properties
@@ -241,50 +247,39 @@ class _EditAddRealEstateState extends State<EditAddRealEstate> {
                                 );
                               }),
                           DropdownMenuItem<String>(
-                            enabled: false,
-                            value: "add_offer",
+                            value: "add_new_offer",
                             child: Row(
                               children: [
-                                Expanded(
-                                  child: TextField(
-                                    controller: clientOfferTypesController
-                                        .offerNameController,
-                                    decoration: const InputDecoration(
-                                      hintText: "إضافة عرض جديد...",
-                                      isDense: true,
-                                    ),
-                                  ),
+                                const Icon(Icons.add, color: Colors.amber),
+                                const SizedBox(width: 8),
+                                const Text(
+                                  "إضافة عرض جديد...",
+                                  style: TextStyle(color: Colors.amber),
                                 ),
-                                clientOfferTypesController
-                                        .isInlineAddLoading
-                                        .value
-                                    ? const SizedBox(
-                                        width: 20,
-                                        height: 20,
-                                        child: CircularProgressIndicator(
-                                          strokeWidth: 2,
-                                        ),
-                                      )
-                                    : IconButton(
-                                        icon: const Icon(Icons.add),
-                                        onPressed: () async {
-                                          final newId =
-                                              await clientOfferTypesController
-                                                  .createOfferTypeInline();
-                                          if (newId != null &&
-                                              context.mounted) {
-                                            Navigator.pop(context);
-                                            controller.offerController.value =
-                                                newId;
-                                          }
-                                        },
-                                      ),
                               ],
                             ),
                           ),
                         ],
                         onChanged: (value) {
-                          controller.offerController.value = value;
+                          if (value == "add_new_offer") {
+                            _showAddDialog(
+                              title: "إضافة عرض جديد",
+                              hint: "اسم العرض (بيع، إيجار...)",
+                              controller: clientOfferTypesController
+                                  .offerNameController,
+                              onAdd: () async {
+                                final res = await clientOfferTypesController
+                                    .createOfferTypeInline();
+                                if (res != null) {
+                                  controller.offerController.value = res;
+                                }
+                              },
+                              isAddingValue:
+                                  clientOfferTypesController.isInlineAddLoading,
+                            );
+                          } else {
+                            controller.offerController.value = value;
+                          }
                         },
                       );
                     }),
@@ -359,47 +354,38 @@ class _EditAddRealEstateState extends State<EditAddRealEstate> {
                                   );
                                 }),
                             DropdownMenuItem<String>(
-                              enabled: false,
-                              value: "add_type",
+                              value: "add_new_type",
                               child: Row(
                                 children: [
-                                  Expanded(
-                                    child: TextField(
-                                      controller:
-                                          typesController.inlineAddController,
-                                      decoration: const InputDecoration(
-                                        hintText: "إضافة نوع جديد...",
-                                        isDense: true,
-                                      ),
-                                    ),
+                                  const Icon(Icons.add, color: Colors.amber),
+                                  const SizedBox(width: 8),
+                                  const Text(
+                                    "إضافة نوع جديد...",
+                                    style: TextStyle(color: Colors.amber),
                                   ),
-                                  typesController.isInlineAddLoading.value
-                                      ? const SizedBox(
-                                          width: 20,
-                                          height: 20,
-                                          child: CircularProgressIndicator(
-                                            strokeWidth: 2,
-                                          ),
-                                        )
-                                      : IconButton(
-                                          icon: const Icon(Icons.add),
-                                          onPressed: () async {
-                                            final newId = await typesController
-                                                .createRealEstateTypeInline();
-                                            if (newId != null &&
-                                                context.mounted) {
-                                              Navigator.pop(context);
-                                              controller.typeController.value =
-                                                  newId;
-                                            }
-                                          },
-                                        ),
                                 ],
                               ),
                             ),
                           ],
                           onChanged: (value) {
-                            controller.typeController.value = value;
+                            if (value == "add_new_type") {
+                              _showAddDialog(
+                                title: "إضافة نوع جديد",
+                                hint: "اسم النوع (شقة، أرض...)",
+                                controller: typesController.inlineAddController,
+                                onAdd: () async {
+                                  final res = await typesController
+                                      .createRealEstateTypeInline();
+                                  if (res != null) {
+                                    controller.typeController.value = res;
+                                  }
+                                },
+                                isAddingValue:
+                                    typesController.isInlineAddLoading,
+                              );
+                            } else {
+                              controller.typeController.value = value;
+                            }
                           },
                         ),
                       ),
@@ -427,7 +413,14 @@ class _EditAddRealEstateState extends State<EditAddRealEstate> {
                       ),
                       DropdownButton<String>(
                         isExpanded: true,
-                        value: controller.addressTagController.value,
+                        value:
+                            (clientRealEstateAddressesController.properties.any(
+                              (p) =>
+                                  p['id'].toString() ==
+                                  controller.addressTagController.value,
+                            ))
+                            ? controller.addressTagController.value
+                            : null,
                         hint: Text("اختر من القائمة"),
 
                         items: [
@@ -440,55 +433,40 @@ class _EditAddRealEstateState extends State<EditAddRealEstate> {
                                 );
                               }),
                           DropdownMenuItem<String>(
-                            enabled: false,
-                            value: "add_address",
-                            child: Obx(() {
-                              return Row(
-                                children: [
-                                  Expanded(
-                                    child: TextField(
-                                      controller:
-                                          clientRealEstateAddressesController
-                                              .addressNameController,
-                                      decoration: const InputDecoration(
-                                        hintText: "إضافة عنوان جديد...",
-                                        isDense: true,
-                                      ),
-                                    ),
-                                  ),
-                                  clientRealEstateAddressesController
-                                          .isInlineAddLoading
-                                          .value
-                                      ? const SizedBox(
-                                          width: 20,
-                                          height: 20,
-                                          child: CircularProgressIndicator(
-                                            strokeWidth: 2,
-                                          ),
-                                        )
-                                      : IconButton(
-                                          icon: const Icon(Icons.add),
-                                          onPressed: () async {
-                                            final newId =
-                                                await clientRealEstateAddressesController
-                                                    .createRealEstateAddressInline();
-                                            if (newId != null &&
-                                                context.mounted) {
-                                              Navigator.pop(context);
-                                              controller
-                                                      .addressTagController
-                                                      .value =
-                                                  newId;
-                                            }
-                                          },
-                                        ),
-                                ],
-                              );
-                            }),
+                            value: "add_new_address",
+                            child: Row(
+                              children: [
+                                const Icon(Icons.add, color: Colors.amber),
+                                const SizedBox(width: 8),
+                                const Text(
+                                  "إضافة عنوان جديد...",
+                                  style: TextStyle(color: Colors.amber),
+                                ),
+                              ],
+                            ),
                           ),
                         ],
                         onChanged: (value) {
-                          controller.addressTagController.value = value;
+                          if (value == "add_new_address") {
+                            _showAddDialog(
+                              title: "إضافة عنوان جديد",
+                              hint: "اسم المنطقة أو الحي...",
+                              controller: clientRealEstateAddressesController
+                                  .addressNameController,
+                              onAdd: () async {
+                                final res =
+                                    await clientRealEstateAddressesController
+                                        .createRealEstateAddressInline();
+                                if (res != null) {
+                                  controller.addressTagController.value = res;
+                                }
+                              },
+                              isAddingValue: clientRealEstateAddressesController
+                                  .isInlineAddLoading,
+                            );
+                          } else {
+                            controller.addressTagController.value = value;
+                          }
                         },
                       ),
                     ],
@@ -584,54 +562,39 @@ class _EditAddRealEstateState extends State<EditAddRealEstate> {
                                   );
                                 }),
                             DropdownMenuItem<String>(
-                              enabled: false,
-                              value: "add_clading",
-                              child: Obx(() {
-                                return Row(
-                                  children: [
-                                    Expanded(
-                                      child: TextField(
-                                        controller: cladingTypesController
-                                            .inlineAddController,
-                                        decoration: const InputDecoration(
-                                          hintText: "إضافة إكساء جديد...",
-                                          isDense: true,
-                                        ),
-                                      ),
-                                    ),
-                                    cladingTypesController
-                                            .isInlineAddLoading
-                                            .value
-                                        ? const SizedBox(
-                                            width: 20,
-                                            height: 20,
-                                            child: CircularProgressIndicator(
-                                              strokeWidth: 2,
-                                            ),
-                                          )
-                                        : IconButton(
-                                            icon: const Icon(Icons.add),
-                                            onPressed: () async {
-                                              final newId =
-                                                  await cladingTypesController
-                                                      .createCladingTypeInline();
-                                              if (newId != null &&
-                                                  context.mounted) {
-                                                Navigator.pop(context);
-                                                controller
-                                                        .cladingController
-                                                        .value =
-                                                    newId;
-                                              }
-                                            },
-                                          ),
-                                  ],
-                                );
-                              }),
+                              value: "add_new_clading",
+                              child: Row(
+                                children: [
+                                  const Icon(Icons.add, color: Colors.amber),
+                                  const SizedBox(width: 8),
+                                  const Text(
+                                    "إضافة إكساء جديد...",
+                                    style: TextStyle(color: Colors.amber),
+                                  ),
+                                ],
+                              ),
                             ),
                           ],
                           onChanged: (value) {
-                            controller.cladingController.value = value;
+                            if (value == "add_new_clading") {
+                              _showAddDialog(
+                                title: "إضافة إكساء جديد",
+                                hint: "اسم الإكساء (سوبر ديلوكس، عادي...)",
+                                controller:
+                                    cladingTypesController.inlineAddController,
+                                onAdd: () async {
+                                  final res = await cladingTypesController
+                                      .createCladingTypeInline();
+                                  if (res != null) {
+                                    controller.cladingController.value = res;
+                                  }
+                                },
+                                isAddingValue:
+                                    cladingTypesController.isInlineAddLoading,
+                              );
+                            } else {
+                              controller.cladingController.value = value;
+                            }
                           },
                         ),
                       ),
@@ -775,6 +738,9 @@ class _EditAddRealEstateState extends State<EditAddRealEstate> {
                   ],
                 );
               }),
+              const SizedBox(
+                height: 100,
+              ), // Extra space to scroll past keyboard
             ],
           ),
         ),
@@ -792,74 +758,123 @@ class _EditAddRealEstateState extends State<EditAddRealEstate> {
     bool isRequired = true,
   }) {
     ClientRealEstateController clientRealEstateController = Get.find();
-    return Obx(() {
-      return TextFormField(
-        textInputAction: TextInputAction.next,
-        controller: controller,
-        keyboardType: type,
-        maxLines: maxLines,
-        enabled:
-            (!clientRealEstateController.isPriceHidden.value && isPrice) ||
-            !isPrice,
-        decoration: InputDecoration(
-          labelText: label,
+    return TextFormField(
+      textInputAction: TextInputAction.next,
+      controller: controller,
+      keyboardType: type,
+      maxLines: maxLines,
+      // enabled:
+      //     (!clientRealEstateController.isPriceHidden.value && isPrice) ||
+      //     !isPrice,
+      decoration: InputDecoration(
+        labelText: label,
 
-          prefixIcon: isPrice
-              ? Obx(
-                  () => Container(
-                    width: 80,
-                    alignment: Alignment.center,
-                    child: DropdownButtonHideUnderline(
-                      child: DropdownButton<String>(
-                        value: clientRealEstateController.currency.value,
-                        items: ['\$', 'ل.س']
-                            .map(
-                              (currency) => DropdownMenuItem(
-                                value: currency,
-                                child: Text(currency),
-                              ),
-                            )
-                            .toList(),
-                        onChanged: (value) {
-                          if (value != null) {
-                            clientRealEstateController.currency.value = value;
-                          }
-                        },
-                      ),
+        prefixIcon: isPrice
+            ? Obx(
+                () => Container(
+                  width: 80,
+                  alignment: Alignment.center,
+                  child: DropdownButtonHideUnderline(
+                    child: DropdownButton<String>(
+                      value: clientRealEstateController.currency.value,
+                      items: ['\$', 'ل.س']
+                          .map(
+                            (currency) => DropdownMenuItem(
+                              value: currency,
+                              child: Text(currency),
+                            ),
+                          )
+                          .toList(),
+                      onChanged: (value) {
+                        if (value != null) {
+                          clientRealEstateController.currency.value = value;
+                        }
+                      },
                     ),
                   ),
-                )
-              : Icon(icon, color: Colors.amber),
-          suffix: isPrice
-              ? Obx(() {
-                  final isPriceHidden =
-                      clientRealEstateController.isPriceHidden.value;
-                  return InkWell(
-                    onTap: () {
-                      clientRealEstateController.isPriceHidden.value =
-                          !isPriceHidden;
-                    },
-                    child: Icon(
-                      isPriceHidden ? Icons.visibility_off : Icons.visibility,
-                      color: Colors.amber,
-                    ),
-                  );
-                })
-              : null,
-          border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-          focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
-            borderSide: const BorderSide(color: Colors.amber, width: 2),
+                ),
+              )
+            : Icon(icon, color: Colors.amber),
+        suffix: isPrice
+            ? Obx(() {
+                final isPriceHidden =
+                    clientRealEstateController.isPriceHidden.value;
+                return InkWell(
+                  onTap: () {
+                    clientRealEstateController.isPriceHidden.value =
+                        !isPriceHidden;
+                  },
+                  child: Icon(
+                    isPriceHidden ? Icons.visibility_off : Icons.visibility,
+                    color: Colors.amber,
+                  ),
+                );
+              })
+            : null,
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: const BorderSide(color: Colors.amber, width: 2),
+        ),
+      ),
+      validator: (value) => isRequired
+          ? isPrice && clientRealEstateController.isPriceHidden.value
+                ? null
+                : value!.isNotEmpty
+                ? null
+                : "الحقل مطلوب"
+          : null,
+    );
+  }
+
+  void _showAddDialog({
+    required String title,
+    required String hint,
+    required TextEditingController controller,
+    required Future<void> Function() onAdd,
+    required RxBool isAddingValue,
+  }) {
+    controller.clear();
+    Get.dialog(
+      AlertDialog(
+        title: Text(title, textAlign: TextAlign.center),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        content: TextFormField(
+          validator: (value) => value!.isNotEmpty ? null : "الحقل مطلوب",
+          controller: controller,
+          autofocus: true,
+          decoration: InputDecoration(
+            hintText: hint,
+            border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
           ),
         ),
-        validator: (value) => isRequired
-            ? isPrice && clientRealEstateController.isPriceHidden.value
-                  ? null
-                  : value!.isNotEmpty
-                  ? null
-                  : "الحقل مطلوب"
-            : null,
-      );
-    });
+        actions: [
+          TextButton(
+            onPressed: () => Get.back(),
+            child: const Text("إلغاء", style: TextStyle(color: Colors.grey)),
+          ),
+          Obx(() {
+            if (isAddingValue.value) {
+              return CircularProgressIndicator.adaptive();
+            }
+            return ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.amber,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+              ),
+              onPressed: () async {
+                if (controller.text.isNotEmpty) {
+                  await onAdd();
+                  Get.back();
+                }
+              },
+              child: const Text("إضافة", style: TextStyle(color: Colors.black)),
+            );
+          }),
+        ],
+      ),
+    );
   }
 }

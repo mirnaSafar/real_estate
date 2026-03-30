@@ -2,6 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:real_estate/core/check_session_func.dart';
 import 'package:real_estate/core/utils.dart';
 import 'package:real_estate/features/real_estate/presentation/controller/client_real_estate_controller.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -35,11 +36,10 @@ class ClientRealEstateCladingTypesController extends GetxController {
     super.onInit();
   }
 
-  String getCladingTypeName(String id) {
+  String? getCladingTypeName(String id) {
     return properties.firstWhereOrNull(
-          (element) => element['id'].toString() == id,
-        )?['name'] ??
-        '-';
+      (element) => element['id'].toString() == id,
+    )?['name'];
   }
 
   Future<void> fetchCladingTypes() async {
@@ -93,14 +93,16 @@ class ClientRealEstateCladingTypesController extends GetxController {
 
     try {
       if (formKey.currentState!.validate()) {
-        isAddLoading.value = true;
-        await supabase.from('real_estate_clading_types').insert({
-          // 'owner_id': user.id,
-          "name": titleController.text,
-        }).select();
-        fetchCladingTypes();
-        isAddLoading.value = false;
-        Get.back();
+        await checkSessionFunction(() async {
+          isAddLoading.value = true;
+          await supabase.from('real_estate_clading_types').insert({
+            // 'owner_id': user.id,
+            "name": titleController.text,
+          }).select();
+          fetchCladingTypes();
+          isAddLoading.value = false;
+          Get.back();
+        });
       } else {
         Get.showSnackbar(
           GetSnackBar(
@@ -125,15 +127,17 @@ class ClientRealEstateCladingTypesController extends GetxController {
   Future<String?> createCladingTypeInline() async {
     if (inlineAddController.text.isEmpty) return null;
     try {
-      isInlineAddLoading.value = true;
-      final List<Map<String, dynamic>> data = await supabase
-          .from('real_estate_clading_types')
-          .insert({"name": inlineAddController.text})
-          .select();
-      await fetchCladingTypes();
-      inlineAddController.clear();
-      isInlineAddLoading.value = false;
-      return data.first['id'].toString();
+      return await checkSessionFunction<String?>(() async {
+        isInlineAddLoading.value = true;
+        final List<Map<String, dynamic>> data = await supabase
+            .from('real_estate_clading_types')
+            .insert({"name": inlineAddController.text})
+            .select();
+        await fetchCladingTypes();
+        inlineAddController.clear();
+        isInlineAddLoading.value = false;
+        return data.first['id'].toString();
+      });
     } catch (e) {
       debugPrint('Inline add error: $e');
       isInlineAddLoading.value = false;
@@ -145,29 +149,33 @@ class ClientRealEstateCladingTypesController extends GetxController {
   Future<void> updateCladingType(String id, {required String title}) async {
     final supabase = Supabase.instance.client;
     if (formKey.currentState!.validate()) {
-      isUpdateLoading[int.parse(id)] = true;
-      properties.value = await supabase
-          .from('real_estate_clading_types')
-          .update({'name': title})
-          .eq('id', id)
-          .select();
-      await fetchCladingTypes();
-      isUpdateLoading[int.parse(id)] = false;
+      await checkSessionFunction(() async {
+        isUpdateLoading[int.parse(id)] = true;
+        properties.value = await supabase
+            .from('real_estate_clading_types')
+            .update({'name': title})
+            .eq('id', id)
+            .select();
+        await fetchCladingTypes();
+        isUpdateLoading[int.parse(id)] = false;
 
-      Get.back();
+        Get.back();
+      });
     }
   }
 
   Future<void> deleteCladingType(String id) async {
-    final supabase = Supabase.instance.client;
-    isDeleteLoading[int.parse(id)] = true;
-    await supabase
-        .from('real_estate_clading_types')
-        .delete()
-        .eq('id', id)
-        .select();
-    fetchCladingTypes();
-    isDeleteLoading[int.parse(id)] = false;
+    await checkSessionFunction(() async {
+      final supabase = Supabase.instance.client;
+      isDeleteLoading[int.parse(id)] = true;
+      await supabase
+          .from('real_estate_clading_types')
+          .delete()
+          .eq('id', id)
+          .select();
+      fetchCladingTypes();
+      isDeleteLoading[int.parse(id)] = false;
+    });
   }
 
   @override
